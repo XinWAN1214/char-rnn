@@ -27,8 +27,8 @@ cmd:argument('-model','model checkpoint to use for sampling')
 -- optional parameters
 cmd:option('-seed',123,'random number generator\'s seed')
 cmd:option('-sample',1,' 0 to use max at each timestep, 1 to sample at each timestep')
-cmd:option('-primetext'," ",'used as a prompt to "seed" the state of the LSTM using a given sequence, before we sample.')
-cmd:option('-length',2000,'number of characters to sample')
+cmd:option('-primetext',"the",'used as a prompt to "seed" the state of the LSTM using a given sequence, before we sample.')
+cmd:option('-length',7,'number of words to sample')
 cmd:option('-temperature',1,'temperature of sampling')
 cmd:option('-gpuid',0,'which gpu to use. -1 = use CPU')
 cmd:text()
@@ -79,9 +79,9 @@ local prev_char
 
 protos.rnn:evaluate() -- put in eval mode so that dropout works properly
 
--- do a few seeded timesteps
+-- do a few seeded timesteps - if the words here aren't in training data you're going to have a bad time
 print('seeding with ' .. seed_text)
-for c in seed_text:gmatch'.' do
+for c in seed_text:gmatch'%w+' do
     prev_char = torch.Tensor{vocab[c]}
     if opt.gpuid >= 0 then prev_char = prev_char:cuda() end
     local embedding = protos.embed:forward(prev_char)
@@ -107,12 +107,12 @@ for i=1, opt.length do
         prev_char = torch.multinomial(probs:float(), 1):resize(1):float()
     end
 
-    -- forward the rnn for next character
+    -- forward the rnn for next word
     local embedding = protos.embed:forward(prev_char)
     current_state = protos.rnn:forward{embedding, unpack(current_state)}
     if type(current_state) ~= 'table' then current_state = {current_state} end
 
-    io.write(ivocab[prev_char[1]])
+    io.write(ivocab[prev_char[1]] .. ' ')
 end
 io.write('\n') io.flush()
 

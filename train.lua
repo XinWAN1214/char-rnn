@@ -40,7 +40,7 @@ cmd:option('-model', 'lstm', 'for now only lstm is supported. keep fixed')
 cmd:option('-learning_rate',2e-3,'learning rate')
 cmd:option('-decay_rate',0.95,'decay rate for rmsprop')
 cmd:option('-dropout',0,'dropout to use just before classifier. 0 = no dropout')
-cmd:option('-seq_length',50,'number of timesteps to unroll for')
+cmd:option('-seq_length',4,'number of timesteps to unroll for')
 cmd:option('-batch_size',100,'number of sequences to train on in parallel')
 cmd:option('-max_epochs',30,'number of full passes through the training data')
 cmd:option('-grad_clip',5,'clip gradients at')
@@ -79,6 +79,7 @@ if not path.exists(opt.checkpoint_dir) then lfs.mkdir(opt.checkpoint_dir) end
 
 -- define the model: prototypes for one timestep, then clone them in time
 protos = {}
+print(vocab_size)
 protos.embed = OneHot(vocab_size)
 print('creating an LSTM with ' .. opt.num_layers .. ' layers')
 protos.rnn = LSTM.lstm(vocab_size, opt.rnn_size, opt.num_layers, opt.dropout)
@@ -163,6 +164,7 @@ function feval(x)
         x = x:float():cuda()
         y = y:float():cuda()
     end
+
     ------------------- forward pass -------------------
     local embeddings = {}            -- input embeddings
     local rnn_state = {[0] = init_state_global}
@@ -237,6 +239,7 @@ for i = 1, iterations do
 
         local savefile = string.format('%s/lm_%s_epoch%.2f_%.4f.t7', opt.checkpoint_dir, opt.savefile, epoch, val_loss)
         print('saving checkpoint to ' .. savefile)
+        print ('val loss ' .. val_loss)
         local checkpoint = {}
         checkpoint.protos = protos
         checkpoint.opt = opt

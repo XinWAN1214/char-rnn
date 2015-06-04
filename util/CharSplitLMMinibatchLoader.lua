@@ -95,23 +95,27 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     print('creating vocabulary mapping...')
     -- record all characters to a set
     local unordered = {}
-    for char in rawdata:gmatch'.' do
-        if not unordered[char] then unordered[char] = true end
+    for word in rawdata:gmatch"%w+" do
+        if not unordered[word] then unordered[word] = true end
     end
+    
+    words = {}
+    for word in rawdata:gmatch("%w+") do table.insert(words, word) end
     -- sort into a table (i.e. keys become 1..N)
     local ordered = {}
-    for char in pairs(unordered) do ordered[#ordered + 1] = char end
+    for word in pairs(unordered) do ordered[#ordered + 1] = word end
     table.sort(ordered)
     -- invert `ordered` to create the char->int mapping
     local vocab_mapping = {}
-    for i, char in ipairs(ordered) do
-        vocab_mapping[char] = i
+    for i, word in ipairs(ordered) do
+        vocab_mapping[word] = i
     end
     -- construct a tensor with all the data
     print('putting data into tensor...')
-    local data = torch.ByteTensor(#rawdata) -- store it into 1D first, then rearrange
-    for i=1, #rawdata do
-        data[i] = vocab_mapping[rawdata:sub(i, i)] -- lua has no string indexing using []
+    print (vocab_mapping)
+    local data = torch.IntTensor(#words) -- store it into 1D first, then rearrange
+    for i=1, #words do
+        data[i] = vocab_mapping[words[i]] -- lua has no string indexing using []
     end
 
     -- save output preprocessed files
