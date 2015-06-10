@@ -3,7 +3,7 @@
 
 If you haven't read the readme and blog post for char-rnn, head on over there before going any further.
 
-This fork alters the original char-rnn in order to work with words instead of characters.  I've also included a heavy metal lyrics dataset, as an example of a situation where this works pretty well.
+This fork alters Graydyn/char-rnn (actually word-rnn) to handle UTF-8 encoded input. Graydyn/char-rnn modifies the original char-rnn in order to work with words instead of characters.  A heavy metal lyrics dataset is maintained, as an example of a situation where word-rnn works pretty well. Below are some comments from the original word-rnn:
 
 ##The Bad News
 

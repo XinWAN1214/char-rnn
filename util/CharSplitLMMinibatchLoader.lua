@@ -86,6 +86,10 @@ end
 function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, out_tensorfile)
     local timer = torch.Timer()
 
+    local utf8 = require 'lua-utf8'
+
+    local whitespace = {0x9, 0xA, 0xB, 0xC, 0xD, 0x20, 0x85, 0xA0, 0x1680, 0x2000, 0x2001}
+
     print('loading text file...')
     local f = torch.DiskFile(in_textfile)
     local rawdata = f:readString('*a') -- NOTE: this reads the whole file at once
@@ -95,12 +99,46 @@ function CharSplitLMMinibatchLoader.text_to_tensor(in_textfile, out_vocabfile, o
     print('creating vocabulary mapping...')
     -- record all characters to a set
     local unordered = {}
-    for word in rawdata:gmatch"%w+" do
-        if not unordered[word] then unordered[word] = true end
-    end
+
+    --for word in rawdata:u"%w+" do
+    --    if not unordered[word] then unordered[word] = true end
+    --end
+
+    local word=""
+
+    for _, c in utf8.codes(rawdata) do
+        word = word .. utf8.char(c)
+        for _, v in ipairs(whitespace) do
+        if c == v then
+            --print(word)
+            if not unordered[word] then unordered[word] = true end
+            word=""
+        end
+   end
+   end
+
+   --print (myword)
+   if not unordered[word] then unordered[word] = true end
     
     words = {}
-    for word in rawdata:gmatch("%w+") do table.insert(words, word) end
+   
+    --for word in rawdata:u("%w+") do table.insert(words, word) end
+
+    word=""
+
+    for _, c in utf8.codes(rawdata) do
+        word = word .. utf8.char(c)
+        for _, v in ipairs(whitespace) do
+        if c == v then
+            --print(word)
+            table.insert(words, word)
+            word=""
+        end
+   end
+   end 
+
+   table.insert(words, word)
+
     -- sort into a table (i.e. keys become 1..N)
     local ordered = {}
     for word in pairs(unordered) do ordered[#ordered + 1] = word end
