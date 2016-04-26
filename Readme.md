@@ -3,7 +3,7 @@
 
 If you haven't read the readme and blog post for char-rnn, head on over there before going any further.
 
-This fork alters Graydyn/char-rnn (actually word-rnn) to handle UTF-8 encoded input. You will also need to install luautf8
+This fork alters Graydyn/char-rnn (actually word-rnn) to handle UTF-8 encoded input. You will also need to install luautf8:
 
 luarocks install luautf8
 
