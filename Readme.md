@@ -3,7 +3,11 @@
 
 If you haven't read the readme and blog post for char-rnn, head on over there before going any further.
 
-This fork alters Graydyn/char-rnn (actually word-rnn) to handle UTF-8 encoded input. Graydyn/char-rnn modifies the original char-rnn in order to work with words instead of characters.  A heavy metal lyrics dataset is maintained, as an example of a situation where word-rnn works pretty well. Below are some comments from the original word-rnn:
+This fork alters Graydyn/char-rnn (actually word-rnn) to handle UTF-8 encoded input. You will also need to install luautf8
+
+luarocks install luautf8
+
+Graydyn/char-rnn modifies the original char-rnn in order to work with words instead of characters.  A heavy metal lyrics dataset is maintained, as an example of a situation where word-rnn works pretty well. Below are some comments from the original word-rnn:
 
 ##The Bad News
 
